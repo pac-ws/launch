@@ -1,0 +1,80 @@
+launch:
+  - arg:
+      name: 'env_dir'
+      default: 'env2_f1_r1'
+      # default: 'env3_f2_r2'
+  - arg:
+      name: 'full_path'
+      default: 'configs/$(var env_dir)'
+  - arg:
+      name: 'params_file'
+      default: '$(var full_path)/coverage_control_params.toml'
+  - arg:
+      name: 'pos_file'
+      default: '$(var full_path)/robot_init_pos'
+  - arg:
+      name: 'idf_file'
+      default: '$(var full_path)/idf_features'
+  - arg:
+      name: 'namespaces_of_robots'
+      # default: '["r1", "r9"]'
+      # default: '["r9"]'
+      default: '["fake1"]'
+      # default: '["ptah"]'
+      # default: '["sobek"]'
+      # default: '["sobek", "ptah", "r9", "r2", "r1"]'
+      # default: '["sobek", "ptah"]'
+  - arg:
+      name: 'env_scale_factor'
+      default: '50.0'
+  - arg:
+      name: 'vel_scale_factor'
+      default: '0.2'
+
+  - include:
+      file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
+      arg:
+        - name: 'mode'
+          value: 'sim'
+        - name: 'sim_namespace'
+          value: 'sim'
+        - name: "params_file"
+          value: "$(var params_file)"
+        - name: "pos_file"
+          value: "$(var pos_file)"
+        - name: "idf_file"
+          value: "$(var idf_file)"
+        - name: "namespaces_of_robots"
+          value: "$(var namespaces_of_robots)"
+        - name: "scale_factor"
+          value: "$(var env_scale_factor)"
+
+  - node:
+      pkg: 'async_pac_gnn_py'
+      exec: 'lpac_l1'
+      namespace: "$(env ROS_NAMESPACE)"
+      name: 'lpac_node'
+      param:
+      - name: 'params_file'
+        value: '$(var params_file)'
+      - name: 'idf_file'
+        value: '$(var idf_file)'
+      - name: 'namespaces_of_robots'
+        value: '$(var namespaces_of_robots)'
+      - name: 'learning_params_file'
+        value: 'pt/models_256/learning_params.toml'
+      - name: 'model_state_dict'
+        # value: 'pt/models_128/model_k3_1024_state_dict.pt'
+        value: 'pt/models_256/model_k3_1024_256_state_dict.pt'
+      - name: 'scale_factor'
+        value: '$(var vel_scale_factor)'
+      remap:
+      - from: 'robot_poses'
+        to: '/sim/all_robot_sim_poses'
+      # - from: 'fake1/cmd_vel'
+      #   to: '/fake1/cmd_vel'
+      # - from: 'fake2/cmd_vel'
+      #   to: '/fake2/cmd_vel'
+      # - from: 'starling2/cmd_vel'
+      #   to: '/starling2/cmd_vel'
+

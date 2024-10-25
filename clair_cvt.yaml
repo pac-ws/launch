@@ -1,0 +1,51 @@
+launch:
+  - arg:
+      name: 'env_dir'
+      default: 'env0_f32_r32'
+  - arg:
+      name: 'full_path'
+      default: 'configs/$(var env_dir)'
+  - arg:
+      name: 'params_file'
+      default: '$(var full_path)/coverage_control_params.toml'
+  - arg:
+      name: 'pos_file'
+      default: '$(var full_path)/robot_init_pos'
+  - arg:
+      name: 'idf_file'
+      default: '$(var full_path)/idf_features'
+  - arg:
+      name: 'namespaces_of_robots'
+      default: '["r0", "r1", "r2"]'
+
+  - include:
+      file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
+      arg:
+        - name: 'mode'
+          value: 'sim'
+        - name: 'sim_namespace'
+          value: 'sim'
+        - name: 'params_file'
+          value: '$(var params_file)'
+        - name: 'pos_file'
+          value: '$(var pos_file)'
+        - name: 'idf_file'
+          value: '$(var idf_file)'
+        - name: 'namespaces_of_robots'
+          value: '$(var namespaces_of_robots)'
+
+  - node:
+      pkg: 'coveragecontrol_sim'
+      exec: 'clairvoyant_cvt'
+      namespace: 'sim'
+      name: 'clairvoyant_cvt'
+      param:
+      - name: 'params_file'
+        value: '$(var params_file)'
+      - name: 'idf_file'
+        value: '$(var idf_file)'
+      - name: 'namespaces_of_robots'
+        value: '$(var namespaces_of_robots)'
+      remap:
+      - from: 'all_robot_poses'
+        to: '/sim/all_robot_sim_poses'

@@ -1,0 +1,89 @@
+launch:
+  - arg:
+      name: 'env_dir'
+      default: 'env1_f1_r3'
+  - arg:
+      name: 'full_path'
+      default: 'configs/$(var env_dir)'
+  - arg:
+      name: 'params_file'
+      default: '$(var full_path)/coverage_control_params.toml'
+  - arg:
+      name: 'pos_file'
+      default: '$(var full_path)/robot_init_pos'
+  - arg:
+      name: 'idf_file'
+      default: '$(var full_path)/idf_features'
+  - arg:
+      name: 'namespaces_of_robots'
+      default: '["r0", "r1", "r2"]'
+
+  - include:
+      file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
+      arg:
+        - name: 'mode'
+          value: 'sim'
+        - name: 'sim_namespace'
+          value: 'sim'
+        - name: "params_file"
+          value: "$(var params_file)"
+        - name: "pos_file"
+          value: "$(var pos_file)"
+        - name: "idf_file"
+          value: "$(var idf_file)"
+        - name: "namespaces_of_robots"
+          value: "$(var namespaces_of_robots)"
+
+  - node:
+      pkg: "coveragecontrol_sim"
+      exec: "decentralized_cvt"
+      namespace: "r0"
+      name: "decentralized_cvt"
+      param:
+      - name: "params_file"
+        value: "$(var params_file)"
+      remap:
+      - from: "pose"
+        to: "/sim/r0/sim_pose"
+      - from: "map"
+        to: "/sim/r0/map"
+      - from: "neighbors_pose"
+        to: "/sim/r0/neighbors_pose"
+      - from: "cmd_vel"
+        to: "/sim/r0/cmd_vel"
+
+  - node:
+      pkg: "coveragecontrol_sim"
+      exec: "decentralized_cvt"
+      namespace: "r1"
+      name: "decentralized_cvt"
+      param:
+      - name: "params_file"
+        value: "$(var params_file)"
+      remap:
+      - from: "pose"
+        to: "/sim/r1/sim_pose"
+      - from: "map"
+        to: "/sim/r1/map"
+      - from: "neighbors_pose"
+        to: "/sim/r1/neighbors_pose"
+      - from: "cmd_vel"
+        to: "/sim/r1/cmd_vel"
+
+  - node:
+      pkg: "coveragecontrol_sim"
+      exec: "decentralized_cvt"
+      namespace: "r2"
+      name: "decentralized_cvt"
+      param:
+      - name: "params_file"
+        value: "$(var params_file)"
+      remap:
+      - from: "pose"
+        to: "/sim/r2/sim_pose"
+      - from: "map"
+        to: "/sim/r2/map"
+      - from: "neighbors_pose"
+        to: "/sim/r2/neighbors_pose"
+      - from: "cmd_vel"
+        to: "/sim/robot_2/cmd_vel"

@@ -1,0 +1,20 @@
+launch:
+- let:
+    name: 'env_dir'
+    value: 'env1_f1_r3'
+
+- node:
+    pkg: "cc_rviz"
+    exec: "idf"
+    name: "idf"
+    namespace: "sim"
+
+- node:
+    pkg: "rviz2"
+    exec: "rviz2"
+    name: "rviz2"
+    args: "-d $(find-pkg-share cc_rviz)/resource/rviz.config.rviz"
+    remap:
+      - from: "poses"
+        to: "/sim/all_robot_sim_poses"
+    

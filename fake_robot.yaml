@@ -1,0 +1,49 @@
+launch:
+  # - node:
+  #     pkg: 'async_pac_gnn_py'
+  #     exec: 'fake_robot'
+  #     namespace: 'sobek'
+  #     name: 'fake_robot_node'
+  #     param:
+  #     - name: 'pos_x'
+  #       value: 2.0
+  #     - name: 'pos_y'
+  #       value: 2.0
+  #     - name: 'speed_limit'
+  #       value: 0.5
+  - node:
+      pkg: 'async_pac_gnn_py'
+      exec: 'fake_robot'
+      namespace: 'fake1'
+      name: 'fake_robot_node'
+      param:
+      - name: 'pos_x'
+        value: 4.0
+      - name: 'pos_y'
+        value: 4.0
+      - name: 'speed_limit'
+        value: 2.0
+  - node:
+      pkg: 'async_pac_gnn_py'
+      exec: 'fake_robot'
+      namespace: 'fake2'
+      name: 'fake_robot_node'
+      param:
+      - name: 'pos_x'
+        value: 10.0
+      - name: 'pos_y'
+        value: 4.0
+      - name: 'speed_limit'
+        value: 0.1
+  - node:
+      pkg: 'async_pac_gnn_py'
+      exec: 'fake_robot'
+      namespace: 'fake3'
+      name: 'fake_robot_node'
+      param:
+      - name: 'pos_x'
+        value: 8.0
+      - name: 'pos_y'
+        value: 8.0
+      - name: 'speed_limit'
+        value: 0.1
