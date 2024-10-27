@@ -1,0 +1,29 @@
+launch:
+  - group:
+        - push-ros-namespace:
+              namespace: "$(env ROS_NAMESPACE)"
+
+        - include:
+              file: "$(find-pkg-share starling_offboard_cpp)/launch/offboard.launch.yaml"
+              arg:
+                - name: "lat"
+                  value: "39.9413292"
+
+                - name: "lon"
+                  value: "-75.1987863"
+
+                - name: "alt"
+                  value: "2.0"
+
+                - name: "heading"
+                  value: "2.75"
+
+                - name: "scale"
+                  value: "1.0"
+
+                - name: "x_takeoff"
+                  value: "2.0"
+
+                - name: "y_takeoff"
+                  value: "2.0"
+
