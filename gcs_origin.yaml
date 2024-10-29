@@ -1,0 +1,13 @@
+launch:
+  - group:
+        - include:
+              file: "$(find-pkg-share gcs)/launch/origin.launch.yaml"
+              arg:
+                - name: "origin_lat"
+                  value: "39.9413292"
+
+                - name: "origin_lon"
+                  value: "-75.1987863"
+
+                - name: "origin_heading"
+                  value: "2.75"
