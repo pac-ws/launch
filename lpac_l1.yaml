@@ -1,18 +1,4 @@
 launch:
-  - arg:
-      name: 'env_dir'
-      # default: 'env2_f1_r1'
-      default: 'env3_f2_r2'
-  - arg:
-      name: 'full_path'
-      default: 'configs/$(var env_dir)'
-  - arg:
-      name: 'params_file'
-      default: '$(var full_path)/coverage_control_params.toml'
-  - arg:
-      name: 'idf_file'
-      default: '$(var full_path)/idf_features'
-
   - node:
       pkg: 'async_pac_gnn_py'
       exec: 'lpac_l1'
@@ -20,9 +6,7 @@ launch:
       name: 'lpac_node'
       param:
       - name: 'params_file'
-        value: '$(var params_file)'
-      - name: 'idf_file'
-        value: '$(var idf_file)'
+        value: 'pt/models_256/coverage_control_params.toml'
       - name: 'learning_params_file'
         value: 'pt/models_256/learning_params.toml'
       - name: 'model_state_dict'
@@ -31,3 +15,7 @@ launch:
       remap:
       - from: 'robot_poses'
         to: '/sim/all_robot_sim_poses'
+      - from: 'sim_get_parameters'
+        to: '/sim/sim_centralized/get_parameters'
+      - from: 'get_world_map'
+        to: '/sim/get_world_map'

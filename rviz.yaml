@@ -1,14 +1,14 @@
 launch:
   - arg:
       name: 'env_dir'
-      # default: 'env2_f1_r1'
-      default: 'env3_f2_r2'
+      default: 'env2_f1_r1'
+      # default: 'env3_f2_r2'
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
   - arg:
       name: 'params_file'
-      default: '$(var full_path)/coverage_control_params.toml'
+      default: 'pt/models_256/coverage_control_params.toml'
   - arg:
       name: 'idf_file'
       default: '$(var full_path)/idf_features'
