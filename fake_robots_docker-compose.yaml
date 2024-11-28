@@ -1,0 +1,35 @@
+x-common-settings: &common-settings
+  image: agarwalsaurav/pac:noble
+  privileged: true
+  network_mode: host
+  ipc: host
+  pid: host
+  environment:
+    - RCUTILS_COLORIZED_OUTPUT=1
+    - PAC_WS=/workspace
+  working_dir: /workspace
+  volumes:
+    - ${PAC_WS}:/workspace:rw
+
+x-ros-launch-file: &ros-launch-file
+  command: >
+    bash -c -i "ros2 launch /workspace/launch/lpac_l1.yaml"
+
+services:
+  container_zero:
+    <<: *common-settings
+    container_name: fake_robots
+    environment:
+      - ROS_NAMESPACE=fake_robots
+    command: >
+      bash -c -i "ros2 launch launch/fake_robot.yaml"
+  container_one:
+    <<: [*common-settings, *ros-launch-file]
+    container_name: fake1
+    environment:
+      - ROS_NAMESPACE=fake1
+  container_two:
+    <<: [*common-settings, *ros-launch-file]
+    container_name: fake2
+    environment:
+      - ROS_NAMESPACE=fake2
