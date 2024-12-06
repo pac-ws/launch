@@ -6,17 +6,8 @@ launch:
         - include:
               file: "$(find-pkg-share starling_offboard_cpp)/launch/offboard.launch.yaml"
               arg:
-                # - name: "lat"
-                #   value: "39.9413292"
-
-                # - name: "lon"
-                #   value: "-75.1987863"
-
-                # - name: "alt"
-                #   value: "2.0"
-
-                - name: "heading"
-                  value: "2.75"
+                - name: "alt"
+                  value: "2.0"
 
                 - name: "scale"
                   value: "1.0"
