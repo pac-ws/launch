@@ -7,10 +7,10 @@ launch:
       default: '10.0'
   - arg:
       name: 'origin_lat'
-      default: '39.9489482'
+      default: '47.397744000'
   - arg:
       name: 'origin_lon'
-      default: '-75.1882389'
+      default: '8.545594400'
   - arg:
       name: 'origin_alt'
       default: '5669.47'
