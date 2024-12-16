@@ -14,7 +14,7 @@ launch:
       default: '$(var full_path)/idf_features'
   - arg:
       name: 'namespaces_of_robots'
-      default: '["fake1", "fake2"]'
+      default: '["px4_1"]'
   - arg:
       name: 'env_scale_factor'
       default: '50.0'
