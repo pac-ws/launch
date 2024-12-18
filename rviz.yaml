@@ -14,13 +14,13 @@ launch:
       default: '$(var full_path)/0.env'
   - arg:
       name: 'namespaces_of_robots'
-      default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8"]'
+      default: '["px4_1", "px4_2", "px4_3", "px4_4"]'
   - arg:
       name: 'env_scale_factor'
       default: '4.0'
   - arg:
       name: 'vel_scale_factor'
-      default: '0.25'
+      default: '1'
 
   - include:
       file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'

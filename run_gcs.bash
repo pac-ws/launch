@@ -5,7 +5,7 @@ set -e
 
 # Function to show usage
 usage() {
-  echo "Usage: $0 [--create|--build|--bash|--origin|--pac|--rviz|--lpac]"
+  echo "Usage: $0 [--create|--delete|--build|--bash|--origin|--pac|--rviz|--lpac]"
   exit 1
 }
 
@@ -20,6 +20,11 @@ while [ "$#" -gt 0 ]; do
     --create)
       echo "Creating PAC container..."
       bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns gcs -n gcs --noble
+      ;;
+    --delete)
+      echo "Deleting PAC container..."
+      docker stop gcs
+      docker rm gcs
       ;;
     --build)
       echo "Running build script..."
