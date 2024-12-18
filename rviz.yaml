@@ -2,7 +2,7 @@ launch:
   - arg:
       name: 'env_dir'
       # default: 'env2_f1_r1'
-      default: 'env3_f2_r2'
+      default: 'px4_envs'
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
@@ -11,16 +11,16 @@ launch:
       default: 'pt/models_256/coverage_control_params.toml'
   - arg:
       name: 'idf_file'
-      default: '$(var full_path)/idf_features'
+      default: '$(var full_path)/0.env'
   - arg:
       name: 'namespaces_of_robots'
-      default: '["px4_1"]'
+      default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8"]'
   - arg:
       name: 'env_scale_factor'
-      default: '50.0'
+      default: '4.0'
   - arg:
       name: 'vel_scale_factor'
-      default: '0.2'
+      default: '0.25'
 
   - include:
       file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
