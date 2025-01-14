@@ -42,7 +42,7 @@ launch:
                 - name: 'robot_id'
                   value: '$(env ROBOT_ID)'
                 - name: 'alt'
-                  value: '10.0'
+                  value: '6.0'
                 - name: 'x_takeoff'
                   value: '0.0'
                 - name: 'y_takeoff'
