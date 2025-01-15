@@ -20,7 +20,7 @@ launch:
       default: '4.0'
   - arg:
       name: 'vel_scale_factor'
-      default: '1'
+      default: '1.0'
 
   - include:
       file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
