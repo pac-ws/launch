@@ -14,12 +14,17 @@ if [ $# -eq 0 ]; then
   usage
 fi
 
+GPU_FLAG=""
+# Check if nvidia gpu is available
 # Parse the provided flags
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --create)
       echo "Creating PAC container..."
-      bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns gcs -n gcs --noble
+      if [ "$(command -v nvidia-smi)" ]; then
+        GPU_FLAG="--gpu"
+      fi
+      bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns gcs -n gcs --noble ${GPU_FLAG}
       ;;
     --delete)
       echo "Deleting PAC container..."
