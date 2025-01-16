@@ -14,19 +14,20 @@ launch:
       default: '$(var full_path)/0.env'
   - arg:
       name: 'namespaces_of_robots'
-      default: '["px4_1", "px4_2", "px4_3", "px4_4"]'
+      default: '["px4_1", "px4_2"]'
   - arg:
       name: 'env_scale_factor'
       default: '4.0'
   - arg:
       name: 'vel_scale_factor'
       default: '1.0'
+  - arg:
+      name: 'pose_timout'
+      default: '30.0'
 
   - include:
       file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
       arg:
-        - name: 'mode'
-          value: 'real'
         - name: 'sim_namespace'
           value: 'sim'
         - name: "params_file"
@@ -39,6 +40,8 @@ launch:
           value: "$(var env_scale_factor)"
         - name: "vel_scale_factor"
           value: "$(var vel_scale_factor)"
+        - name: "pose_timout"
+          value: "$(var pose_timout)"
 
   - node:
       pkg: "cc_rviz"

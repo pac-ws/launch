@@ -17,12 +17,13 @@ launch:
   - arg:
       name: 'namespaces_of_robots'
       default: '["r0", "r1", "r2"]'
+  - arg:
+      name: 'pose_timout'
+      default: '30.0'
 
   - include:
       file: '$(find-pkg-share coveragecontrol_sim)/launch/centralized.yaml'
       arg:
-        - name: 'mode'
-          value: 'sim'
         - name: 'sim_namespace'
           value: 'sim'
         - name: 'params_file'
@@ -33,6 +34,8 @@ launch:
           value: '$(var idf_file)'
         - name: 'namespaces_of_robots'
           value: '$(var namespaces_of_robots)'
+        - name: "pose_timout"
+          value: "$(var pose_timout)"
 
   - node:
       pkg: 'coveragecontrol_sim'

@@ -30,17 +30,3 @@ services:
       - ROS_NAMESPACE=px4_2
       - ROBOT_ID=2
 
-  px4_3:
-    <<: [*common-settings, *ros-launch-file]
-    container_name: px4_3
-    environment:
-      - ROS_NAMESPACE=px4_3
-      - ROBOT_ID=3
-
-  px4_4:
-    <<: [*common-settings, *ros-launch-file]
-    container_name: px4_4
-    environment:
-      - ROS_NAMESPACE=px4_4
-      - ROBOT_ID=4
-
