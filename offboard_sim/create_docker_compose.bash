@@ -12,7 +12,7 @@ OUTPUT_FILE="docker-compose.yaml"
 # Write the common settings to the docker-compose file
 cat <<EOL > $OUTPUT_FILE
 x-common-settings: &common-settings
-  image: agarwalsaurav/pac:noble
+  image: agarwalsaurav/pac:jazzy
   privileged: true
   network_mode: host
   ipc: host

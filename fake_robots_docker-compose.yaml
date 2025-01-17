@@ -1,5 +1,5 @@
 x-common-settings: &common-settings
-  image: agarwalsaurav/pac:noble
+  image: agarwalsaurav/pac:jazzy
   privileged: true
   network_mode: host
   ipc: host
