@@ -55,6 +55,4 @@ launch:
                   value: '0.5'
                 - name: 'max_speed'
                   value: '2.0'
-                - name: 'yaw'
-                  value: '0.0'
 
