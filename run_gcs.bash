@@ -24,7 +24,7 @@ while [ "$#" -gt 0 ]; do
       if [ "$(command -v nvidia-smi)" ]; then
         GPU_FLAG="--gpu"
       fi
-      bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns gcs -n gcs --noble ${GPU_FLAG}
+      bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns gcs -n gcs --jazzy ${GPU_FLAG}
       ;;
     --delete)
       echo "Deleting PAC container..."
