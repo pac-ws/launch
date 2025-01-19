@@ -50,6 +50,27 @@ launch:
       namespace: "sim"
 
   - node:
+      pkg: 'async_pac_gnn_py'
+      exec: 'lpac'
+      namespace: "$(env ROS_NAMESPACE)"
+      name: 'lpac_node'
+      param:
+      - name: 'params_file'
+        value: 'pt/models_256/coverage_control_params.toml'
+      - name: 'learning_params_file'
+        value: 'pt/models_256/learning_params.toml'
+      - name: 'model_state_dict'
+        # value: 'pt/models_128/model_k3_1024_state_dict.pt'
+        value: 'pt/models_256/model_k3_1024_256_state_dict.pt'
+      remap:
+      - from: 'robot_poses'
+        to: '/sim/all_robot_sim_poses'
+      - from: 'sim_get_parameters'
+        to: '/sim/sim_centralized/get_parameters'
+      - from: 'get_world_map'
+        to: '/sim/get_world_map'
+
+  - node:
       pkg: "rviz2"
       exec: "rviz2"
       name: "rviz2"
