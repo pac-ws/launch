@@ -74,7 +74,7 @@ launch:
       pkg: "rviz2"
       exec: "rviz2"
       name: "rviz2"
-      args: "-d $(find-pkg-share cc_rviz)/resource/rviz.config.rviz"
+      args: "-d $(find-pkg-share rviz_pac)/resource/rviz.config.rviz"
       remap:
         - from: "poses"
           to: "/sim/all_robot_sim_poses"
