@@ -119,7 +119,8 @@ while true; do
       ;;
     --mission)
       info_message "Launching GCS mission_control..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "ros2 run gcs mission_control"
+      xhost +
+      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; ros2 launch launch/mission_control.yaml"
       ;;
     --origin)
       info_message "Launching GCS origin..."

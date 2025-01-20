@@ -1,0 +1,10 @@
+launch:
+  - node:
+      pkg: gcs
+      exec: mission_control
+      name: mission_control
+
+  - executable:
+      # cmd: 'ros2 run rqt_gui rqt_gui'
+      cmd: 'ros2 run rqt_gui rqt_gui -ht -l -f --perspective-file /workspace/launch/mission_control.perspective'
+      name: rqt_reconfigure
