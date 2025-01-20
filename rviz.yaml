@@ -44,12 +44,6 @@ launch:
           value: "$(var pose_timout)"
 
   - node:
-      pkg: "cc_rviz"
-      exec: "idf"
-      name: "idf"
-      namespace: "sim"
-
-  - node:
       pkg: 'async_pac_gnn_py'
       exec: 'lpac'
       namespace: "$(env ROS_NAMESPACE)"
