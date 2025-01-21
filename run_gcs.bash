@@ -15,18 +15,36 @@ print_usage() {
 Usage: bash $(basename "$0") [OPTIONS]
 
 Options:
-  -c, --create                           Create a new GCS container
-  -b, --build                            Run the build script
-  --delete                               Delete the GCS container
-  --mission                              Launch GCS mission_control
-  --rviz                                 Launch RViz
-  --bash                                 Start bash in the GCS container
-  --cmd <command>                        Run a command in the GCS container
-  --rlogs <robot_ssh_name>               Get docker logs for the robot
-  --rcmd <robot_ssh_name> <command>      Run a command on the robot
-  --rdcmd <robot_ssh_name> <command>     Run a command in a Docker container on the robot
+  -h, --help                            Display this help message
+  -c, --create                          Create a new GCS container
+  -b, --build                           Run the build script
 
-  -h, --help                             Display this help message
+  --mission                             Launch GCS mission_control
+  --rviz                                Launch RViz
+
+  ------------------------------------------------------------------------
+  <sys_name>: Use one of the following names 
+            gcs.*       :   GCS container
+            px4_[0-9]+  :   Simulation container
+            r[0-9]+#    :   Robot container (pac-m0054)
+            .r[0-9]+#   :   Robot bash (* = not applicable)
+
+  If the system name is gcs, you will be prompted to enter the namespace.
+  Otherwise, the namespace will be the same as the system name.
+  ------------------------------------------------------------------------
+
+  --list <sys_name>                     List topics
+  --logs <sys_name>                     Get docker logs
+  --delete <sys_name>                   Delete the container
+  --restart <sys_name>                  Restart the container
+  --bash <sys_name>                     Start bash
+  --cmd <sys_name> <command>            Run a command
+  --gps <sys_name>                      Run voxl-inspect-gps
+
+  --pose <sys_name>                     Echo /<ns>/pose topic
+  --vel <sys_name>                      Echo /<ns>/cmd_vel topic
+  --vlp <sys_name>                      Echo /<ns>/fmu/out/vehicle_local_position topic
+  --vgps <sys_name>                     Echo /<ns>/fmu/out/vehicle_gps_position topic
 
   === Deprecated ===
   --origin                               Launch GCS mission_origin
@@ -38,49 +56,34 @@ EOF
 
 }
 
-# Function to check if a command exists
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
-
-# Function to handle errors
 error_exit() {
   echo -e "${RED}Error: $1${NC}" >&2
   exit 1
 }
-#
-# Function to display informational messages
+
 info_message() {
   echo -e "${BLUE}$1${NC}"
 }
 
-# Ensure required commands are available
-for cmd in docker getopt; do
-  if ! command_exists "$cmd"; then
-    error_exit "'$cmd' command is not found. Please install it before running this script."
+check_args() {
+  if [[ -z "${1:-}" ]]; then
+    error_exit "Missing argument."
   fi
-done
+}
+
+sys_pattern='^(gcs.*|px4_[0-9]+|r[0-9]+|\.r[0-9]+)$'
+check_sys_name() {
+  check_args "${@:-}"
+  if [[ ! "$1" =~ $sys_pattern ]]; then
+    error_exit "Not a valid system name."
+  fi
+}
 
 if [[ $# -eq 0 ]]; then
   print_usage
   error_exit "No arguments provided."
 fi
 
-# Define short and long options
-SHORT_OPTS="cbh"
-LONG_OPTS="create,delete,build,bash,cmd:,rcmd:,rdcmd:,mission,origin,pac,rqt,rviz,lpac,rlogs:,help"
-
-# echo "Input arguments: $@"
-# # Parse options using getopt
-# PARSED_PARAMS=$(getopt --options "$SHORT_OPTS" \
-#                        --long "$LONG_OPTS" \
-#                        --name "$(basename "$0")" -- "$@") || {
-#   error_exit "Failed to parse script options."
-# }
-
-# # Evaluate the parsed options
-# eval set -- "$PARSED_PARAMS"
-# echo "Input arguments: $@"
 
 if [[ -z "${PAC_WS:-}" ]]; then
   error_exit "PAC_WS environment variable is not set. Please set it before running this script."
@@ -92,15 +95,30 @@ fi
 
 GPU_FLAG=""
 
-CONTAINER_NAME="gcs"
+GCS_CONTAINER_NAME="gcs"
 ROBOT_CONTAINER_NAME="pac-m0054"
 
-docker_cmd() {
-  if [[ -z "${1:-}" ]]; then
-    error_exit "Missing command to run."
+get_ns_gcs() {
+  if [[ "$1" =~ ^gcs.*$ ]]; then
+    read -p "Enter namespace: " namespace
+    echo -n "$namespace"
+  else
+    echo -n "$1"
   fi
-  info_message "Running command '$1' in container '${CONTAINER_NAME}'..."
+}
+
+docker_cmd() {
+  if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+    error_exit "Missing container name or command. Usage: docker_cmd <container_name> <command>"
+  fi
+  CONTAINER_NAME="${1}"
+  shift
+  info_message "Running command '$*' in container '${CONTAINER_NAME}'..."
   docker exec -it "${CONTAINER_NAME}" bash -ci "$*"
+}
+
+gcs_cmd() {
+  docker_cmd "gcs" "$@"
 }
 
 robot_cmd() {
@@ -117,83 +135,155 @@ robot_docker_cmd() {
   if [[ -z "${1:-}" || -z "${2:-}" ]]; then
     error_exit "Missing robot SSH name or command. Usage: robot_docker_cmd <robot_ssh_name> <command>"
   fi
+  echo "Args: $@"
   SSH_NAME="${1}"
   shift
-  info_message "Running command '$2' in container '${ROBOT_CONTAINER_NAME}' on '$1'..."
+  info_message "Running command '$*' in container '${ROBOT_CONTAINER_NAME}' on '$1'..."
   ssh -t "${SSH_NAME}" "docker exec -it ${ROBOT_CONTAINER_NAME} bash -ci '$*'"
 }
 
+process_cmd() {
+  case "$1" in
+    gcs*|px4_*)
+      docker_cmd $1 "${@:2}"
+      ;;
+    .r*)
+      robot_cmd $1 "${@:2}"
+      ;;
+    r*)
+      robot_docker_cmd $1 "${@:2}"
+      ;;
+    *)
+      error_exit "Invalid system name."
+      ;;
+  esac
+}
+
 case "$1" in
+  -h|--help)
+    print_usage
+    exit 0
+    ;;
   -c|--create)
     info_message "Creating PAC container..."
     if [ "$(command -v nvidia-smi)" ]; then
       GPU_FLAG="--gpu"
     fi
-    bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${CONTAINER_NAME} -n ${CONTAINER_NAME} --jazzy ${GPU_FLAG}
-    ;;
-  --delete)
-    info_message "Deleting PAC container..."
-    docker stop "${CONTAINER_NAME}"
-    docker rm "${CONTAINER_NAME}"
+    bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${GCS_CONTAINER_NAME} -n ${GCS_CONTAINER_NAME} --jazzy ${GPU_FLAG}
     ;;
   -b|--build)
-    info_message "Running build script..."
-    docker_cmd "/workspace/pac_ws_setup/gcs_build.bash"
-    ;;
-  --bash)
-    docker_cmd "bash"
-    ;;
-  --cmd)
-    shift
-    docker_cmd "$*"
+    gcs_cmd "/workspace/pac_ws_setup/gcs_build.bash"
     ;;
   --mission)
-    info_message "Launching GCS mission_control..."
-    docker_cmd "pip install pyqt5"
+    gcs_cmd "pip install pyqt5"
     xhost +
-    docker_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
-    docker_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
+    gcs_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
+    gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
     ;;
   --rviz)
-    info_message "Launching RViz..."
     xhost +
-    docker_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
+    gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
     ;;
-  --rlogs)
-    if [[ -z "${1:-}" ]]; then
-      error_exit "Missing robot SSH name. Usage: rlogs <robot_ssh_name>"
-    fi
-    info_message "Getting docker logs from '$2'..."
-    robot_cmd "${2}" "docker logs -f pac-m0054"
+  --list)
+    check_sys_name "$2"
+    process_cmd "$2" "ros2 topic list"
     ;;
-  --rcmd)
-    shift
-    robot_cmd "$@"
+  --logs)
+    check_sys_name "$2"
+    case "$2" in
+      gcs*|px4_*)
+        docker logs -f "${2}"
+        ;;
+      r*|.r*)
+        robot_cmd "$2" "docker logs -f ${2}"
+        ;;
+    esac
     ;;
-  --rdcmd)
-    shift
-    robot_docker_cmd "$@"
+  --delete)
+    check_sys_name "$2"
+    case "$2" in
+      gcs*|px4_*)
+        docker stop "${2}"
+        docker rm "${2}"
+        ;;
+      r*|.r*)
+        robot_cmd "$2" "docker stop ${2}"
+        robot_cmd "$2" "docker rm ${2}"
+        ;;
+    esac
+    ;;
+  --restart)
+    check_sys_name "$2"
+    case "$2" in
+      gcs*|px4_*)
+        docker restart "${2}"
+        ;;
+      r*|.r*)
+        robot_cmd "$2" "docker restart ${2}"
+        ;;
+    esac
+    ;;
+  --bash)
+    check_sys_name "$2"
+    process_cmd "$2" "bash"
+    ;;
+  --gps)
+    check_sys_name "$2"
+    case "$2" in
+      gcs*)
+        error_exit "Not applicable for GCS."
+        ;;
+      px4_*)
+        docker_cmd "$2" "voxl-inspect-gps"
+        ;;
+      r*|.r*)
+        robot_cmd "$2" "voxl-inspect-gps"
+        ;;
+      *)
+        process_cmd "$2" "ros2 run volx_inspect_gps volx_inspect_gps"
+        ;;
+    esac
+    ;;
+  --cmd)
+    check_sys_name "$2"
+    process_cmd "$2" "${@:3}"
+    ;;
+  --pose)
+    check_sys_name "$2"
+    ns=$(get_ns_gcs "$2")
+    process_cmd "$2" "ros2 topic echo /${ns}/pose"
+    ;;
+  --vel)
+    check_sys_name "$2"
+    ns=$(get_ns_gcs "$2")
+    process_cmd "$2" "ros2 topic echo /${ns}/cmd_vel"
+    ;;
+  --vlp)
+    check_sys_name "$2"
+    ns=$(get_ns_gcs "$2")
+    process_cmd "$2" "ros2 topic echo /${ns}/fmu/out/vehicle_local_position"
+    ;;
+  --vgps)
+    check_sys_name "$2"
+    ns=$(get_ns_gcs "$2")
+    process_cmd "$2" "ros2 topic echo /${ns}/fmu/out/vehicle_gps_position"
     ;;
   --origin)
     info_message "Launching GCS origin..."
-    docker_cmd "ros2 launch /workspace/launch/gcs_origin.yaml"
+    gcs_cmd "ros2 launch /workspace/launch/extra/gcs_origin.yaml"
     ;;
   --pac)
     info_message "Running PAC status script..."
-    docker_cmd "ros2 run gcs status_pac"
+    gcs_cmd "ros2 run gcs status_pac"
     ;;
   --rqt)
     info_message "Launching rqt..."
     xhost +
-    docker_cmd "export DISPLAY='$DISPLAY'; rqt"
+    gcs_cmd "export DISPLAY='$DISPLAY'; rqt"
     ;;
   --lpac)
     info_message "Running LPAC status script..."
-    docker_cmd "ros2 launch launch/lpac.yaml"
-    ;;
-  -h|--help)
-    print_usage
-    exit 0
+    gcs_cmd "ros2 launch /workspace/launch/extra/lpac.yaml"
     ;;
   --)
     break

@@ -30,7 +30,7 @@ def generate_launch_description():
             package='gcs',
             executable='mission_origin_gps',
             name='mission_origin_gps',
-            namespace='pac_gps',
+            namespace='pac_gcs',
             output='screen',
             parameters=[mission_origin_params],
             )
