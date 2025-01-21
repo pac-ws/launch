@@ -143,7 +143,7 @@ robot_docker_cmd() {
   echo "Args: $@"
   SSH_NAME="${1}"
   shift
-  info_message "Running command '$*' in container '${ROBOT_CONTAINER_NAME}' on '$1'..."
+  info_message "Running command '$*' in container '${ROBOT_CONTAINER_NAME}' on '${SSH_NAME}'..."
   ssh -t "${SSH_NAME}" "docker exec -it ${ROBOT_CONTAINER_NAME} bash -ci '$*'"
 }
 
@@ -224,7 +224,7 @@ case "$1" in
         bash ${PAC_WS}/pac_ws_setup/setup_pac_ws.bash
         ;;
       r*|.r*)
-        robot_cmd "${SYS}" "/workspace/pac_ws_setup/setup_pac_ws.bash -d /data/pac_ws/"
+        robot_docker_cmd "${SYS}" '/workspace/pac_ws_setup/setup_pac_ws.bash -d /workspace/'
         read -p "Do you want to restart the container? (y/n): " response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
           robot_cmd "${SYS}" "docker restart ${ROBOT_CONTAINER_NAME}"
