@@ -40,6 +40,7 @@ Options:
   bash <sys_name>                     Start bash
   cmd <sys_name> <command>            Run a command
   gps <sys_name>                      Run voxl-inspect-gps
+  batt <sys_name>                     Run voxl-inspect-battery
   update <sys_name>                   Run setup_pac_ws.bash (gcs | r*)
 
   pose <sys_name>                     Echo /<ns>/pose topic
@@ -264,6 +265,23 @@ case "$1" in
         ;;
       *)
         process_cmd "${SYS}" "ros2 run volx_inspect_gps volx_inspect_gps"
+        ;;
+    esac
+    ;;
+  batt)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      gcs*)
+        error_exit "Not applicable for GCS."
+        ;;
+      px4_*)
+        docker_cmd "${SYS}" "voxl-inspect-battery"
+        ;;
+      r*|.r*)
+        robot_cmd "${SYS}" "voxl-inspect-battery"
+        ;;
+      *)
+        process_cmd "${SYS}" "ros2 run voxl_inspect_battery voxl_inspect_battery"
         ;;
     esac
     ;;
