@@ -41,6 +41,7 @@ Options:
   cmd <sys_name> <command>            Run a command
   gps <sys_name>                      Run voxl-inspect-gps
   batt <sys_name>                     Run voxl-inspect-battery
+  journal <sys_name>                  Run journalctl -u voxl-px4 -f
   update <sys_name>                   Run setup_pac_ws.bash (gcs | r*)
 
   pose <sys_name>                     Echo /<ns>/pose topic
@@ -282,6 +283,23 @@ case "$1" in
         ;;
       *)
         process_cmd "${SYS}" "ros2 run voxl_inspect_battery voxl_inspect_battery"
+        ;;
+    esac
+    ;;
+  journal)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      gcs*)
+        error_exit "Not applicable for GCS."
+        ;;
+      px4_*)
+        docker_cmd "${SYS}" "journalctl -u voxl-px4 -f"
+        ;;
+      r*|.r*)
+        robot_cmd "${SYS}" "journalctl -u voxl-px4 -f"
+        ;;
+      *)
+        process_cmd "${SYS}" "journalctl -u voxl-px4 -f"
         ;;
     esac
     ;;
