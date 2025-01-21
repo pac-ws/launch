@@ -200,7 +200,7 @@ case "$1" in
         docker logs -f "${SYS}"
         ;;
       r*|.r*)
-        robot_cmd "${SYS}" "docker logs -f ${SYS}"
+        robot_cmd "${SYS}" "docker logs -f ${ROBOT_CONTAINER_NAME}"
         ;;
     esac
     ;;
@@ -212,8 +212,8 @@ case "$1" in
         docker rm "${SYS}"
         ;;
       r*|.r*)
-        robot_cmd "${SYS}" "docker stop ${SYS}"
-        robot_cmd "${SYS}" "docker rm ${SYS}"
+        robot_cmd "${SYS}" "docker stop ${ROBOT_CONTAINER_NAME}"
+        robot_cmd "${SYS}" "docker rm ${ROBOT_CONTAINER_NAME}"
         ;;
     esac
     ;;
@@ -227,7 +227,7 @@ case "$1" in
         robot_cmd "${SYS}" "/workspace/pac_ws_setup/setup_pac_ws.bash -d /data/pac_ws/"
         read -p "Do you want to restart the container? (y/n): " response
         if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
-          robot_cmd "${SYS}" "docker restart ${SYS}"
+          robot_cmd "${SYS}" "docker restart ${ROBOT_CONTAINER_NAME}"
         fi
         ;;
     esac
@@ -239,7 +239,7 @@ case "$1" in
         docker restart "${SYS}"
         ;;
       r*|.r*)
-        robot_cmd "${SYS}" "docker restart ${SYS}"
+        robot_cmd "${SYS}" "docker restart ${ROBOT_CONTAINER_NAME}"
         ;;
     esac
     ;;
