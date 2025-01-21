@@ -18,21 +18,24 @@ Options:
   -c, --create                           Create a new GCS container
   -b, --build                            Run the build script
   --delete                               Delete the GCS container
-  --bash                                 Start bash in the GCS container
-  --bash_cmd <command>                   Run a command in the GCS container
   --mission                              Launch GCS mission_control
-  --origin                               Launch GCS mission_origin
-  --pac                                  Run PAC status script
-  --rqt                                  Launch rqt
   --rviz                                 Launch RViz
-  --lpac                                 Run LPAC
+  --bash                                 Start bash in the GCS container
+  --cmd <command>                        Run a command in the GCS container
   --rlogs <robot_ssh_name>               Get docker logs for the robot
+  --rcmd <robot_ssh_name> <command>      Run a command on the robot
+  --rdcmd <robot_ssh_name> <command>     Run a command in a Docker container on the robot
 
   -h, --help                             Display this help message
 
-Examples:
-  bash $(basename "$0") --create
+  === Deprecated ===
+  --origin                               Launch GCS mission_origin
+  --pac                                  Run PAC status script
+  --rqt                                  Launch rqt
+  --lpac                                 Run LPAC
+
 EOF
+
 }
 
 # Function to check if a command exists
@@ -60,22 +63,24 @@ done
 
 if [[ $# -eq 0 ]]; then
   print_usage
-  exit 1
+  error_exit "No arguments provided."
 fi
 
 # Define short and long options
 SHORT_OPTS="cbh"
-LONG_OPTS="create,delete,build,bash,bash_cmd:,mission,origin,pac,rqt,rviz,lpac,rlogs:,help"
+LONG_OPTS="create,delete,build,bash,cmd:,rcmd:,rdcmd:,mission,origin,pac,rqt,rviz,lpac,rlogs:,help"
 
-# Parse options using getopt
-PARSED_PARAMS=$(getopt --options "$SHORT_OPTS" --long "$LONG_OPTS" --name "$(basename "$0")" -- "$@") || {
-  echo "Failed to parse arguments." >&2
-  print_usage
-  exit 1
-}
+# echo "Input arguments: $@"
+# # Parse options using getopt
+# PARSED_PARAMS=$(getopt --options "$SHORT_OPTS" \
+#                        --long "$LONG_OPTS" \
+#                        --name "$(basename "$0")" -- "$@") || {
+#   error_exit "Failed to parse script options."
+# }
 
-# Evaluate the parsed options
-eval set -- "$PARSED_PARAMS"
+# # Evaluate the parsed options
+# eval set -- "$PARSED_PARAMS"
+# echo "Input arguments: $@"
 
 if [[ -z "${PAC_WS:-}" ]]; then
   error_exit "PAC_WS environment variable is not set. Please set it before running this script."
@@ -86,88 +91,115 @@ if [[ ! -d "$PAC_WS" ]]; then
 fi
 
 GPU_FLAG=""
-CONTAINER_NAME="gcs"
-while true; do
-  case "$1" in
-    -c|--create)
-      info_message "Creating PAC container..."
-      if [ "$(command -v nvidia-smi)" ]; then
-        GPU_FLAG="--gpu"
-      fi
-      bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${CONTAINER_NAME} -n ${CONTAINER_NAME} --jazzy ${GPU_FLAG}
-      ;;
-    --delete)
-      info_message "Deleting PAC container..."
-      docker stop ${CONTAINER_NAME}
-      docker rm ${CONTAINER_NAME}
-      ;;
-    -b|--build)
-      info_message "Running build script..."
-      docker exec -it ${CONTAINER_NAME} bash -ci pac_ws_setup/gcs_build.bash
-      ;;
-    --bash)
-      info_message "Starting bash in Docker container..."
-      docker exec -it ${CONTAINER_NAME} bash
-      ;;
-    --bash_cmd)
-      if [[ -z "${2:-}" || "$2" =~ ^-+ ]]; then
-        error_exit "Missing command to run. Usage: --bash_cmd <command>"
-      fi
-      info_message "Running command "$2" in Docker container..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "$2"
-      shift
-      ;;
-    --mission)
-      info_message "Launching GCS mission_control..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "pip install pyqt5"
-      xhost +
-      docker exec -it ${CONTAINER_NAME} bash -ci "rm -f /root/.config/ros.org/rqt_gui.ini"
-      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; ros2 launch /workspace/launch/mission_control.py"
-      ;;
-    --origin)
-      info_message "Launching GCS origin..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "ros2 launch launch/gcs_origin.yaml"
-      ;;
-    --pac)
-      info_message "Running PAC status script..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "ros2 run gcs status_pac"
-      ;;
-    --rqt)
-      info_message "Launching rqt..."
-      xhost +
-      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; rqt"
-      ;;
-    --rviz)
-      info_message "Launching RViz..."
-      xhost +
-      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; ros2 launch launch/rviz.yaml"
-      ;;
-    --lpac)
-      info_message "Running LPAC status script..."
-      docker exec -it ${CONTAINER_NAME} bash -ci "ros2 launch launch/lpac.yaml"
-      ;;
-    --rlogs)
-      if [[ -z "${2:-}" || "$2" =~ ^-+ ]]; then
-        error_exit "Missing robot SSH name. Usage: --rlogs <robot_ssh_name>"
-      fi
-      ROBOT_SSH_ID="$2"
-      info_message "Getting docker logs from '$ROBOT_SSH_ID'..."
-      ssh -t "${ROBOT_SSH_ID}" "docker logs -f pac-m0054"
-      shift
-      ;;
-    -h|--help)
-      print_usage
-      exit 0
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      info_message "Internal error: unexpected option '$1'" >&2
-      print_usage
-      ;;
-  esac
-  shift
-done
 
+CONTAINER_NAME="gcs"
+ROBOT_CONTAINER_NAME="pac-m0054"
+
+docker_cmd() {
+  if [[ -z "${1:-}" ]]; then
+    error_exit "Missing command to run."
+  fi
+  info_message "Running command '$1' in container '${CONTAINER_NAME}'..."
+  docker exec -it "${CONTAINER_NAME}" bash -ci "$*"
+}
+
+robot_cmd() {
+  if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+    error_exit "Missing robot SSH name or command. Usage: robot_cmd <robot_ssh_name> <command>"
+  fi
+  SSH_NAME="${1}"
+  shift
+  info_message "Running command '$*' on '$SSH_NAME'..."
+  ssh -t "${SSH_NAME}" "$*"
+}
+
+robot_docker_cmd() {
+  if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+    error_exit "Missing robot SSH name or command. Usage: robot_docker_cmd <robot_ssh_name> <command>"
+  fi
+  SSH_NAME="${1}"
+  shift
+  info_message "Running command '$2' in container '${ROBOT_CONTAINER_NAME}' on '$1'..."
+  ssh -t "${SSH_NAME}" "docker exec -it ${ROBOT_CONTAINER_NAME} bash -ci '$*'"
+}
+
+case "$1" in
+  -c|--create)
+    info_message "Creating PAC container..."
+    if [ "$(command -v nvidia-smi)" ]; then
+      GPU_FLAG="--gpu"
+    fi
+    bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${CONTAINER_NAME} -n ${CONTAINER_NAME} --jazzy ${GPU_FLAG}
+    ;;
+  --delete)
+    info_message "Deleting PAC container..."
+    docker stop "${CONTAINER_NAME}"
+    docker rm "${CONTAINER_NAME}"
+    ;;
+  -b|--build)
+    info_message "Running build script..."
+    docker_cmd "/workspace/pac_ws_setup/gcs_build.bash"
+    ;;
+  --bash)
+    docker_cmd "bash"
+    ;;
+  --cmd)
+    shift
+    docker_cmd "$*"
+    ;;
+  --mission)
+    info_message "Launching GCS mission_control..."
+    docker_cmd "pip install pyqt5"
+    xhost +
+    docker_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
+    docker_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
+    ;;
+  --rviz)
+    info_message "Launching RViz..."
+    xhost +
+    docker_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
+    ;;
+  --rlogs)
+    if [[ -z "${1:-}" ]]; then
+      error_exit "Missing robot SSH name. Usage: rlogs <robot_ssh_name>"
+    fi
+    info_message "Getting docker logs from '$2'..."
+    robot_cmd "${2}" "docker logs -f pac-m0054"
+    ;;
+  --rcmd)
+    shift
+    robot_cmd "$@"
+    ;;
+  --rdcmd)
+    shift
+    robot_docker_cmd "$@"
+    ;;
+  --origin)
+    info_message "Launching GCS origin..."
+    docker_cmd "ros2 launch /workspace/launch/gcs_origin.yaml"
+    ;;
+  --pac)
+    info_message "Running PAC status script..."
+    docker_cmd "ros2 run gcs status_pac"
+    ;;
+  --rqt)
+    info_message "Launching rqt..."
+    xhost +
+    docker_cmd "export DISPLAY='$DISPLAY'; rqt"
+    ;;
+  --lpac)
+    info_message "Running LPAC status script..."
+    docker_cmd "ros2 launch launch/lpac.yaml"
+    ;;
+  -h|--help)
+    print_usage
+    exit 0
+    ;;
+  --)
+    break
+    ;;
+  *)
+    info_message "Internal error: unexpected option '$1'" >&2
+    print_usage
+    ;;
+esac
