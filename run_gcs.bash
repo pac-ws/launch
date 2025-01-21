@@ -122,7 +122,7 @@ while true; do
       docker exec -it ${CONTAINER_NAME} bash -ci "pip install pyqt5"
       xhost +
       docker exec -it ${CONTAINER_NAME} bash -ci "rm -f /root/.config/ros.org/rqt_gui.ini"
-      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; ros2 launch launch/mission_control.py"
+      docker exec -it ${CONTAINER_NAME} bash -ci "export DISPLAY=:0; ros2 launch /workspace/launch/mission_control.py"
       ;;
     --origin)
       info_message "Launching GCS origin..."
