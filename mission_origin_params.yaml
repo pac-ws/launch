@@ -1,0 +1,9 @@
+heading: 0.00029366507078520954
+mission_origin_lat: 47.397744
+mission_origin_lon: 8.5455944
+qos_overrides./parameter_events.publisher.depth: 1000
+qos_overrides./parameter_events.publisher.durability: volatile
+qos_overrides./parameter_events.publisher.history: keep_last
+qos_overrides./parameter_events.publisher.reliability: reliable
+start_type_description_service: true
+use_sim_time: false
