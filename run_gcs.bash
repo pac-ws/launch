@@ -131,6 +131,8 @@ robot_cmd() {
     error_exit "Missing robot SSH name or command. Usage: robot_cmd <robot_ssh_name> <command>"
   fi
   SSH_NAME="${1}"
+  # Remove leading dot
+  SSH_NAME="${SSH_NAME#.}"
   shift
   info_message "Running command '$*' on '$SSH_NAME'..."
   ssh -t "${SSH_NAME}" "$*"
@@ -142,6 +144,7 @@ robot_docker_cmd() {
   fi
   echo "Args: $@"
   SSH_NAME="${1}"
+  SSH_NAME="${SSH_NAME#.}"
   shift
   info_message "Running command '$*' in container '${ROBOT_CONTAINER_NAME}' on '${SSH_NAME}'..."
   ssh -t "${SSH_NAME}" "docker exec -it ${ROBOT_CONTAINER_NAME} bash -ci '$*'"
