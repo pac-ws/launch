@@ -1,2 +1,0 @@
-#!/bin/bash
-${PAC_WS}/launch/run_gcs.bash $@

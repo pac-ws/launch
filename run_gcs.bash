@@ -15,12 +15,12 @@ print_usage() {
 Usage: bash $(basename "$0") [OPTIONS]
 
 Options:
-  -h, --help                            Display this help message
-  -c, --create                          Create a new GCS container
-  -b, --build                           Run the build script
+  -h, help                            Display this help message
+  -c, create                          Create a new GCS container
+  -b, build                           Run the build script
 
-  --mission                             Launch GCS mission_control
-  --rviz                                Launch RViz
+  mission                             Launch GCS mission_control
+  rviz                                Launch RViz
 
   ------------------------------------------------------------------------
   <sys_name>: Use one of the following names 
@@ -33,24 +33,25 @@ Options:
   Otherwise, the namespace will be the same as the system name.
   ------------------------------------------------------------------------
 
-  --list <sys_name>                     List topics
-  --logs <sys_name>                     Get docker logs
-  --delete <sys_name>                   Delete the container
-  --restart <sys_name>                  Restart the container
-  --bash <sys_name>                     Start bash
-  --cmd <sys_name> <command>            Run a command
-  --gps <sys_name>                      Run voxl-inspect-gps
+  list <sys_name>                     List topics
+  logs <sys_name>                     Get docker logs
+  delete <sys_name>                   Delete the container
+  restart <sys_name>                  Restart the container
+  bash <sys_name>                     Start bash
+  cmd <sys_name> <command>            Run a command
+  gps <sys_name>                      Run voxl-inspect-gps
+  update <sys_name>                   Run setup_pac_ws.bash (gcs | r*)
 
-  --pose <sys_name>                     Echo /<ns>/pose topic
-  --vel <sys_name>                      Echo /<ns>/cmd_vel topic
-  --vlp <sys_name>                      Echo /<ns>/fmu/out/vehicle_local_position topic
-  --vgps <sys_name>                     Echo /<ns>/fmu/out/vehicle_gps_position topic
+  pose <sys_name>                     Echo /<ns>/pose topic
+  vel <sys_name>                      Echo /<ns>/cmd_vel topic
+  vlp <sys_name>                      Echo /<ns>/fmu/out/vehicle_local_position topic
+  vgps <sys_name>                     Echo /<ns>/fmu/out/vehicle_gps_position topic
 
   === Deprecated ===
-  --origin                               Launch GCS mission_origin
-  --pac                                  Run PAC status script
-  --rqt                                  Launch rqt
-  --lpac                                 Run LPAC
+  origin                               Launch GCS mission_origin
+  pac                                  Run PAC status script
+  rqt                                  Launch rqt
+  lpac                                 Run LPAC
 
 EOF
 
@@ -73,10 +74,14 @@ check_args() {
 
 sys_pattern='^(gcs.*|px4_[0-9]+|r[0-9]+|\.r[0-9]+)$'
 check_sys_name() {
-  check_args "${@:-}"
+  if [[ -z "${1:-}" ]]; then
+    echo -n "gcs"
+    return
+  fi
   if [[ ! "$1" =~ $sys_pattern ]]; then
     error_exit "Not a valid system name."
   fi
+  echo -n "$1"
 }
 
 if [[ $# -eq 0 ]]; then
@@ -160,133 +165,145 @@ process_cmd() {
 }
 
 case "$1" in
-  -h|--help)
+  -h|help)
     print_usage
     exit 0
     ;;
-  -c|--create)
+  -c|create)
     info_message "Creating PAC container..."
     if [ "$(command -v nvidia-smi)" ]; then
       GPU_FLAG="--gpu"
     fi
     bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${GCS_CONTAINER_NAME} -n ${GCS_CONTAINER_NAME} --jazzy ${GPU_FLAG}
     ;;
-  -b|--build)
+  -b|build)
     gcs_cmd "/workspace/pac_ws_setup/gcs_build.bash"
     ;;
-  --mission)
+  mission)
     gcs_cmd "pip install pyqt5"
     xhost +
     gcs_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
     ;;
-  --rviz)
+  rviz)
     xhost +
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
     ;;
-  --list)
-    check_sys_name "$2"
-    process_cmd "$2" "ros2 topic list"
+  list)
+    SYS=$(check_sys_name "${2:-}")
+    process_cmd "${SYS}" "ros2 topic list"
     ;;
-  --logs)
-    check_sys_name "$2"
-    case "$2" in
+  logs)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
       gcs*|px4_*)
-        docker logs -f "${2}"
+        docker logs -f "${SYS}"
         ;;
       r*|.r*)
-        robot_cmd "$2" "docker logs -f ${2}"
+        robot_cmd "${SYS}" "docker logs -f ${SYS}"
         ;;
     esac
     ;;
-  --delete)
-    check_sys_name "$2"
-    case "$2" in
+  delete)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
       gcs*|px4_*)
-        docker stop "${2}"
-        docker rm "${2}"
+        docker stop "${SYS}"
+        docker rm "${SYS}"
         ;;
       r*|.r*)
-        robot_cmd "$2" "docker stop ${2}"
-        robot_cmd "$2" "docker rm ${2}"
+        robot_cmd "${SYS}" "docker stop ${SYS}"
+        robot_cmd "${SYS}" "docker rm ${SYS}"
         ;;
     esac
     ;;
-  --restart)
-    check_sys_name "$2"
-    case "$2" in
-      gcs*|px4_*)
-        docker restart "${2}"
+  update)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      gcs)
+        bash ${PAC_WS}/pac_ws_setup/setup_pac_ws.bash
         ;;
       r*|.r*)
-        robot_cmd "$2" "docker restart ${2}"
+        robot_cmd "${SYS}" "/workspace/pac_ws_setup/setup_pac_ws.bash -d /data/pac_ws/"
+        read -p "Do you want to restart the container? (y/n): " response
+        if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+          robot_cmd "${SYS}" "docker restart ${SYS}"
+        fi
         ;;
     esac
     ;;
-  --bash)
-    check_sys_name "$2"
-    process_cmd "$2" "bash"
+  restart)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      gcs*|px4_*)
+        docker restart "${SYS}"
+        ;;
+      r*|.r*)
+        robot_cmd "${SYS}" "docker restart ${SYS}"
+        ;;
+    esac
     ;;
-  --gps)
-    check_sys_name "$2"
-    case "$2" in
+  bash)
+    SYS=$(check_sys_name "${2:-}")
+    process_cmd "${SYS}" "bash"
+    ;;
+  gps)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
       gcs*)
         error_exit "Not applicable for GCS."
         ;;
       px4_*)
-        docker_cmd "$2" "voxl-inspect-gps"
+        docker_cmd "${SYS}" "voxl-inspect-gps"
         ;;
       r*|.r*)
-        robot_cmd "$2" "voxl-inspect-gps"
+        robot_cmd "${SYS}" "voxl-inspect-gps"
         ;;
       *)
-        process_cmd "$2" "ros2 run volx_inspect_gps volx_inspect_gps"
+        process_cmd "${SYS}" "ros2 run volx_inspect_gps volx_inspect_gps"
         ;;
     esac
     ;;
-  --cmd)
-    check_sys_name "$2"
-    process_cmd "$2" "${@:3}"
+  cmd)
+    SYS=$(check_sys_name "${2:-}")
+    process_cmd "${SYS}" "${@:3}"
     ;;
-  --pose)
-    check_sys_name "$2"
-    ns=$(get_ns_gcs "$2")
-    process_cmd "$2" "ros2 topic echo /${ns}/pose"
+  pose)
+    SYS=$(check_sys_name "${2:-}")
+    ns=$(get_ns_gcs "${SYS}")
+    process_cmd "${SYS}" "ros2 topic echo /${ns}/pose"
     ;;
-  --vel)
-    check_sys_name "$2"
-    ns=$(get_ns_gcs "$2")
-    process_cmd "$2" "ros2 topic echo /${ns}/cmd_vel"
+  vel)
+    SYS=$(check_sys_name "${2:-}")
+    ns=$(get_ns_gcs "${SYS}")
+    process_cmd "${SYS}" "ros2 topic echo /${ns}/cmd_vel"
     ;;
-  --vlp)
-    check_sys_name "$2"
-    ns=$(get_ns_gcs "$2")
-    process_cmd "$2" "ros2 topic echo /${ns}/fmu/out/vehicle_local_position"
+  vlp)
+    SYS=$(check_sys_name "${2:-}")
+    ns=$(get_ns_gcs "${SYS}")
+    process_cmd "${SYS}" "ros2 topic echo /${ns}/fmu/out/vehicle_local_position"
     ;;
-  --vgps)
-    check_sys_name "$2"
-    ns=$(get_ns_gcs "$2")
-    process_cmd "$2" "ros2 topic echo /${ns}/fmu/out/vehicle_gps_position"
+  vgps)
+    SYS=$(check_sys_name "${2:-}")
+    ns=$(get_ns_gcs "${SYS}")
+    process_cmd "${SYS}" "ros2 topic echo /${ns}/fmu/out/vehicle_gps_position"
     ;;
-  --origin)
+  origin)
     info_message "Launching GCS origin..."
     gcs_cmd "ros2 launch /workspace/launch/extra/gcs_origin.yaml"
     ;;
-  --pac)
+  pac)
     info_message "Running PAC status script..."
     gcs_cmd "ros2 run gcs status_pac"
     ;;
-  --rqt)
+  rqt)
     info_message "Launching rqt..."
     xhost +
     gcs_cmd "export DISPLAY='$DISPLAY'; rqt"
     ;;
-  --lpac)
+  lpac)
     info_message "Running LPAC status script..."
     gcs_cmd "ros2 launch /workspace/launch/extra/lpac.yaml"
-    ;;
-  --)
-    break
     ;;
   *)
     info_message "Internal error: unexpected option '$1'" >&2
