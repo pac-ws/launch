@@ -2,7 +2,7 @@ launch:
   - arg:
       name: 'env_dir'
       # default: 'env2_f1_r1'
-      default: 'px4_envs'
+      default: 'jan25_tests'
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
@@ -11,7 +11,7 @@ launch:
       default: 'pt/models_256/coverage_control_params.toml'
   - arg:
       name: 'idf_file'
-      default: '$(var full_path)/0.env'
+      default: '$(var full_path)/1.env'
   - arg:
       name: 'namespaces_of_robots'
       default: '["px4_1", "px4_2"]'
@@ -22,7 +22,7 @@ launch:
       name: 'vel_scale_factor'
       default: '1.0'
   - arg:
-      name: 'pose_timout'
+      name: 'pose_timeout'
       default: '30.0'
 
   - include:
@@ -40,8 +40,8 @@ launch:
           value: "$(var env_scale_factor)"
         - name: "vel_scale_factor"
           value: "$(var vel_scale_factor)"
-        - name: "pose_timout"
-          value: "$(var pose_timout)"
+        - name: "pose_timeout"
+          value: "$(var pose_timeout)"
 
   - node:
       pkg: 'async_pac_gnn_py'
