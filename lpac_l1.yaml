@@ -52,6 +52,8 @@ launch:
         to: '/sim/sim_centralized/get_parameters'
       - from: 'get_world_map'
         to: '/sim/get_world_map'
+      - from: 'get_system_info'
+        to: '/sim/get_system_info'
 
   - group:
         - push-ros-namespace:

@@ -26,7 +26,7 @@ x-common-settings: &common-settings
 
 x-ros-launch-file: &ros-launch-file
   command: >
-    bash -c -i "ros2 launch /workspace/launch/starling_offboard.yaml"
+    bash -c -i "ros2 launch /workspace/launch/lpac_l1.yaml"
 
 services:
 EOL
