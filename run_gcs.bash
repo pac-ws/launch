@@ -181,9 +181,6 @@ case "$1" in
     fi
     bash ${PAC_WS}/pac_ws_setup/pac_create_container.sh -d "${PAC_WS}" --ns ${GCS_CONTAINER_NAME} -n ${GCS_CONTAINER_NAME} --jazzy ${GPU_FLAG}
     ;;
-  -b|build)
-    gcs_cmd "/workspace/pac_ws_setup/gcs_build.bash"
-    ;;
   mission)
     gcs_cmd "pip install pyqt5"
     xhost +
@@ -223,6 +220,17 @@ case "$1" in
       r*|.r*)
         robot_cmd "${SYS}" "docker stop ${ROBOT_CONTAINER_NAME}"
         robot_cmd "${SYS}" "docker rm ${ROBOT_CONTAINER_NAME}"
+        ;;
+    esac
+    ;;
+  -b|build)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      gcs)
+        gcs_cmd "/workspace/pac_ws_setup/gcs_build.bash"
+        ;;
+      r*|.r*)
+        robot_docker_cmd "${SYS}" '/workspace/pac_ws_setup/starling_build.bash'
         ;;
     esac
     ;;
