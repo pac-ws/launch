@@ -20,7 +20,8 @@ Options:
   -b, build                           Run the build script
 
   mission                             Launch GCS mission_control
-  rviz                                Launch RViz
+  rviz                                Launch RViz without LPAC
+  lpac                                Run LPAC
 
   ------------------------------------------------------------------------
   <sys_name>: Use one of the following names 
@@ -53,7 +54,6 @@ Options:
   origin                               Launch GCS mission_origin
   pac                                  Run PAC status script
   rqt                                  Launch rqt
-  lpac                                 Run LPAC
 
 EOF
 
@@ -193,6 +193,10 @@ case "$1" in
   rviz)
     xhost +
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
+    ;;
+  lpac)
+    info_message "Running LPAC status script..."
+    gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/lpac.yaml"
     ;;
   list)
     SYS=$(check_sys_name "${2:-}")
@@ -339,10 +343,6 @@ case "$1" in
     info_message "Launching rqt..."
     xhost +
     gcs_cmd "export DISPLAY='$DISPLAY'; rqt"
-    ;;
-  lpac)
-    info_message "Running LPAC status script..."
-    gcs_cmd "ros2 launch /workspace/launch/extra/lpac.yaml"
     ;;
   *)
     info_message "Internal error: unexpected option '$1'" >&2
