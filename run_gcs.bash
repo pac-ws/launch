@@ -38,6 +38,7 @@ Options:
   logs <sys_name>                     Get docker logs
   delete <sys_name>                   Delete the container
   restart <sys_name>                  Restart the container
+  restart-px4 <sys_name>              Restart the px4 service
   bash <sys_name>                     Start bash
   cmd <sys_name> <command>            Run a command
   gps <sys_name>                      Run voxl-inspect-gps
@@ -191,6 +192,10 @@ case "$1" in
     xhost +
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz.yaml"
     ;;
+  rviz-only)
+    xhost +
+    gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/rviz_only.yaml"
+    ;;
   lpac)
     info_message "Running LPAC status script..."
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/lpac.yaml"
@@ -257,6 +262,14 @@ case "$1" in
         ;;
       r*|.r*)
         robot_cmd "${SYS}" "docker restart ${ROBOT_CONTAINER_NAME}"
+        ;;
+    esac
+    ;;
+  restart-px4)
+    SYS=$(check_sys_name "${2:-}")
+    case "${SYS}" in
+      r*|.r*)
+        robot_cmd "${SYS}" "systemctl restart voxl-px4"
         ;;
     esac
     ;;
