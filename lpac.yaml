@@ -2,7 +2,7 @@ launch:
   - arg:
       name: 'env_dir'
       # default: 'env2_f1_r1'
-      default: 'jan25_tests'
+      default: 'tests'
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
@@ -20,7 +20,7 @@ launch:
       default: '4.0'
   - arg:
       name: 'vel_scale_factor'
-      default: '1.0'
+      default: '0.2'
   - arg:
       name: 'pose_timeout'
       default: '30.0'

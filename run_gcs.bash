@@ -12,7 +12,6 @@ NC='\033[0m' # No Color
 
 print_usage() {
   cat <<EOF
-Usage: bash $(basename "$0") [OPTIONS]
 
 Options:
   -h, help                            Display this help message
