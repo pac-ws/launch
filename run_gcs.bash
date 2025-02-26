@@ -21,6 +21,7 @@ Options:
   mission                             Launch GCS mission_control
   rviz                                Launch RViz without LPAC
   lpac                                Run LPAC
+  bag <bag_file>                      Saves pose and cmd_vel to a bag file
 
   ------------------------------------------------------------------------
   <sys_name>: Use one of the following names 
@@ -183,7 +184,7 @@ case "$1" in
     ;;
   mission)
     gcs_cmd "pip install pyqt5"
-    xhost +
+    xhost *+
     gcs_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
     ;;
@@ -198,6 +199,10 @@ case "$1" in
   lpac)
     info_message "Running LPAC status script..."
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch launch/lpac.yaml"
+    ;;
+  bag)
+    BAG_FILE=${2:-}
+    gcs_cmd "ros2 bag record -o "/workspace/bags/${BAG_FILE}" -e '.*\/(pose|cmd_vel)'"
     ;;
   list)
     SYS=$(check_sys_name "${2:-}")
