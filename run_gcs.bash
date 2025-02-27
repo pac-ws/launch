@@ -184,7 +184,7 @@ case "$1" in
     ;;
   mission)
     gcs_cmd "pip install pyqt5"
-    xhost *+
+    xhost +
     gcs_cmd "rm -f /root/.config/ros.org/rqt_gui.ini"
     gcs_cmd "export DISPLAY='$DISPLAY'; ros2 launch /workspace/launch/mission_control.py"
     ;;
