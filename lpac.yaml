@@ -1,8 +1,7 @@
 launch:
   - arg:
       name: 'env_dir'
-      # default: 'env2_f1_r1'
-      default: 'tests'
+      default: 'px4_envs'
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
