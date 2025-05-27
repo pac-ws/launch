@@ -17,6 +17,9 @@ launch:
   - arg:
       name: 'env_scale_factor'
       default: '4.0'
+  - arg:
+      name: 'kP'
+      default: '1.0'
 
   - node:
       pkg: 'px4_homify'
@@ -55,4 +58,6 @@ launch:
                   value: '0.5'
                 - name: 'max_speed'
                   value: '2.0'
+                - name: 'kP'
+                  value: '$(var kP)'
 
