@@ -34,13 +34,14 @@ Options:
   Otherwise, the namespace will be the same as the system name.
   ------------------------------------------------------------------------
 
+  cmd <sys_name> <command>            Run a command
+
   list <sys_name>                     List topics
   logs <sys_name>                     Get docker logs
   delete <sys_name>                   Delete the container
   restart <sys_name>                  Restart the container
   restart-px4 <sys_name>              Restart the px4 service
   bash <sys_name>                     Start bash
-  cmd <sys_name> <command>            Run a command
   gps <sys_name>                      Run voxl-inspect-gps
   batt <sys_name>                     Run voxl-inspect-battery
   journal <sys_name>                  Run journalctl -u voxl-px4 -f
