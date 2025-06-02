@@ -203,7 +203,7 @@ case "$1" in
     ;;
   bag)
     BAG_FILE=${2:-}
-    gcs_cmd "ros2 bag record -o "/workspace/bags/${BAG_FILE}" -e '.*\/(pose|cmd_vel|sim)'"
+    gcs_cmd "ros2 bag record -o "/workspace/bags/${BAG_FILE}" -e '.*\/(pose|cmd_vel|sim|mission_control|pac_gcs)'"
     ;;
   list)
     SYS=$(check_sys_name "${2:-}")
