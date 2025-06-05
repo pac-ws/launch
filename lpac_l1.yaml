@@ -16,7 +16,7 @@ launch:
       default: '5669.47'
   - arg:
       name: 'env_scale_factor'
-      default: '4.0'
+      default: '32.0'
 
   - node:
       pkg: 'px4_homify'
@@ -80,4 +80,12 @@ launch:
                   value: '2.0'
                 - name: 'kP'
                   value: '1.0'
+                - name: 'fence_x_buf_l'
+                  value: '5.0'
+                - name: 'fence_x_buf_r'
+                  value: '10.0'
+                - name: 'fence_y_buf_b'
+                  value: '5.0'
+                - name: 'fence_y_buf_t'
+                  value: '10.0'
 
