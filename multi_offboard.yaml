@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, GroupAction, IncludeLaunchDescription
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
+
+
+def launch_setup(context, *args, **kwargs):
+    """
+    Setup function that gets called with the launch context.
+    This allows us to evaluate LaunchConfiguration values.
+    """
+    # Get launch configuration values
+    num_robots = int(LaunchConfiguration('num_robots').perform(context))
+    ns_prefix = LaunchConfiguration('ns_prefix').perform(context)
+    
+    # Get other launch configurations (keep as LaunchConfiguration for parameter passing)
+    gps_fix_time = LaunchConfiguration('gps_fix_time')
+    origin_lat = LaunchConfiguration('origin_lat')
+    origin_lon = LaunchConfiguration('origin_lon')
+    origin_alt = LaunchConfiguration('origin_alt')
+    env_scale_factor = LaunchConfiguration('env_scale_factor')
+    alt = LaunchConfiguration('alt')
+    x_takeoff = LaunchConfiguration('x_takeoff')
+    y_takeoff = LaunchConfiguration('y_takeoff')
+    buffer_size = LaunchConfiguration('buffer_size')
+    position_tolerance = LaunchConfiguration('position_tolerance')
+    max_speed = LaunchConfiguration('max_speed')
+    kP = LaunchConfiguration('kP')
+    fence_x_buf_l = LaunchConfiguration('fence_x_buf_l')
+    fence_x_buf_r = LaunchConfiguration('fence_x_buf_r')
+    fence_y_buf_b = LaunchConfiguration('fence_y_buf_b')
+    fence_y_buf_t = LaunchConfiguration('fence_y_buf_t')
+    
+    # Create list to hold all robot launch actions
+    robot_launch_actions = []
+    
+    # Generate launch actions for each robot
+    for i in range(1, num_robots + 1):
+        robot_namespace = f'{ns_prefix}{i}'
+        robot_id = str(i)
+        
+        # Create GPS fix node for this robot
+        gps_fix_node = Node(
+            package='px4_homify',
+            executable='gps_fix',
+            name='gps_fix',
+            namespace=robot_namespace,
+            parameters=[{
+                'gps_fix_time': gps_fix_time,
+                'origin_lat': origin_lat,
+                'origin_lon': origin_lon,
+                'origin_alt': origin_alt
+            }]
+        )
+        
+        offboard_group = GroupAction(
+            actions=[
+                PushRosNamespace(robot_namespace),
+                IncludeLaunchDescription(
+                    AnyLaunchDescriptionSource([
+                        PathJoinSubstitution([
+                            FindPackageShare('starling_offboard_cpp'),
+                            'launch',
+                            'offboard.launch.yaml'
+                        ])
+                    ]),
+                    launch_arguments={
+                        'robot_id': robot_id,
+                        'alt': alt,
+                        'x_takeoff': x_takeoff,
+                        'y_takeoff': y_takeoff,
+                        'env_scale_factor': env_scale_factor,
+                        'buffer_size': buffer_size,
+                        'position_tolerance': position_tolerance,
+                        'max_speed': max_speed,
+                        'kP': kP,
+                        'fence_x_buf_l': fence_x_buf_l,
+                        'fence_x_buf_r': fence_x_buf_r,
+                        'fence_y_buf_b': fence_y_buf_b,
+                        'fence_y_buf_t': fence_y_buf_t,
+                    }.items()
+                )
+            ]
+        )
+        
+        robot_launch_actions.extend([gps_fix_node, offboard_group])
+    
+    return robot_launch_actions
+
+
+def generate_launch_description():
+    # Declare launch arguments
+    num_robots_arg = DeclareLaunchArgument(
+        'num_robots',
+        description='Number of robots to spawn'
+    )
+    
+    ns_prefix_arg = DeclareLaunchArgument(
+        'ns_prefix',
+        default_value='starling',
+        description='Namespace prefix for robots (default: starling)'
+    )
+    
+    gps_fix_time_arg = DeclareLaunchArgument(
+        'gps_fix_time',
+        default_value='10.0',
+        description='GPS fix time (default: 10.0)'
+    )
+    
+    origin_lat_arg = DeclareLaunchArgument(
+        'origin_lat',
+        default_value='47.397744000',
+        description='Origin latitude (default: 47.397744000)'
+    )
+    
+    origin_lon_arg = DeclareLaunchArgument(
+        'origin_lon',
+        default_value='8.545594400',
+        description='Origin longitude (default: 8.545594400)'
+    )
+    
+    origin_alt_arg = DeclareLaunchArgument(
+        'origin_alt',
+        default_value='5669.47',
+        description='Origin altitude (default: 5669.47)'
+    )
+    
+    env_scale_factor_arg = DeclareLaunchArgument(
+        'env_scale_factor',
+        default_value='32.0',
+        description='Environment scale factor (default: 32.0)'
+    )
+    
+    alt_arg = DeclareLaunchArgument(
+        'alt',
+        default_value='10.0',
+        description='Flight altitude (default: 10.0)'
+    )
+    
+    x_takeoff_arg = DeclareLaunchArgument(
+        'x_takeoff',
+        default_value='0.0',
+        description='X takeoff position (default: 0.0)'
+    )
+    
+    y_takeoff_arg = DeclareLaunchArgument(
+        'y_takeoff',
+        default_value='0.0',
+        description='Y takeoff position (default: 0.0)'
+    )
+    
+    buffer_size_arg = DeclareLaunchArgument(
+        'buffer_size',
+        default_value='5',
+        description='Buffer size (default: 5)'
+    )
+    
+    position_tolerance_arg = DeclareLaunchArgument(
+        'position_tolerance',
+        default_value='0.5',
+        description='Position tolerance (default: 0.5)'
+    )
+    
+    max_speed_arg = DeclareLaunchArgument(
+        'max_speed',
+        default_value='2.0',
+        description='Maximum speed (default: 2.0)'
+    )
+    
+    kP_arg = DeclareLaunchArgument(
+        'kP',
+        default_value='1.0',
+        description='Proportional gain (default: 1.0)'
+    )
+    
+    fence_x_buf_l_arg = DeclareLaunchArgument(
+        'fence_x_buf_l',
+        default_value='5.0',
+        description='Fence X buffer left (default: 5.0)'
+    )
+    
+    fence_x_buf_r_arg = DeclareLaunchArgument(
+        'fence_x_buf_r',
+        default_value='10.0',
+        description='Fence X buffer right (default: 10.0)'
+    )
+    
+    fence_y_buf_b_arg = DeclareLaunchArgument(
+        'fence_y_buf_b',
+        default_value='5.0',
+        description='Fence Y buffer bottom (default: 5.0)'
+    )
+    
+    fence_y_buf_t_arg = DeclareLaunchArgument(
+        'fence_y_buf_t',
+        default_value='10.0',
+        description='Fence Y buffer top (default: 10.0)'
+    )
+    
+    # Use OpaqueFunction to handle dynamic node creation
+    opaque_function = OpaqueFunction(function=launch_setup)
+    
+    return LaunchDescription([
+        num_robots_arg,
+        ns_prefix_arg,
+        gps_fix_time_arg,
+        origin_lat_arg,
+        origin_lon_arg,
+        origin_alt_arg,
+        env_scale_factor_arg,
+        alt_arg,
+        x_takeoff_arg,
+        y_takeoff_arg,
+        buffer_size_arg,
+        position_tolerance_arg,
+        max_speed_arg,
+        kP_arg,
+        fence_x_buf_l_arg,
+        fence_x_buf_r_arg,
+        fence_y_buf_b_arg,
+        fence_y_buf_t_arg,
+        opaque_function
+    ])

@@ -35,6 +35,7 @@ launch:
           value: '$(var origin_lon)'
         - name: 'origin_alt'
           value: '$(var origin_alt)'
+
   - group:
         - push-ros-namespace:
               namespace: "$(env ROS_NAMESPACE)"
@@ -60,4 +61,12 @@ launch:
                   value: '2.0'
                 - name: 'kP'
                   value: '$(var kP)'
+                - name: 'fence_x_buf_l'
+                  value: '5.0'
+                - name: 'fence_x_buf_r'
+                  value: '10.0'
+                - name: 'fence_y_buf_b'
+                  value: '5.0'
+                - name: 'fence_y_buf_t'
+                  value: '10.0'
 

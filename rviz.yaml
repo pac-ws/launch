@@ -14,7 +14,9 @@ launch:
       default: '$(var full_path)/1.env'
   - arg:
       name: 'namespaces_of_robots'
-      default: '["px4_1", "px4_2"]'
+      # default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8", "px4_9", "px4_10"]'
+      # default: '["fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10"]'
+      default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8", "px4_9", "px4_10"]'
   - arg:
       name: 'env_scale_factor'
       default: '4.0'
