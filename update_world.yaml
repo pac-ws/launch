@@ -1,0 +1,8 @@
+launch:
+  - node:
+      pkg: "coveragecontrol_sim"
+      exec: "update_world_node"
+      name: "update_world_node"
+      remap:
+        - from: "update_world"
+          to: "/sim/update_world"
