@@ -9,12 +9,6 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    node_mission_control = Node(
-            package='gcs',
-            executable='mission_control',
-            name='mission_control',
-            output='screen',
-            )
     mission_origin_params_file = '/workspace/launch/mission_origin_params.yaml'
     mission_origin_params = {}
     if os.path.exists(mission_origin_params_file):
@@ -26,11 +20,9 @@ def generate_launch_description():
 
     print('Mission origin params: ', mission_origin_params)
 
-    node_mission_origin = Node(
+    node_mission_control = Node(
             package='gcs',
-            executable='mission_origin_gps',
-            name='mission_origin_gps',
-            namespace='pac_gcs',
+            executable='mission',
             output='screen',
             parameters=[mission_origin_params],
             )
@@ -43,5 +35,5 @@ def generate_launch_description():
             arguments=['-ht', '-l', '-f', '--perspective-file', '/workspace/launch/mission_control.perspective'],
             )
 
-    launch_description = LaunchDescription([node_mission_control, node_mission_origin, node_rqt])
+    launch_description = LaunchDescription([node_mission_control, node_rqt])
     return launch_description

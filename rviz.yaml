@@ -16,9 +16,8 @@ launch:
       name: 'namespaces_of_robots'
       # default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8", "px4_9", "px4_10"]'
       # default: '["fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15", "fr16", "fr17", "fr18", "fr19", "fr20", "fr21", "fr22", "fr23", "fr24", "fr25", "fr26", "fr27", "fr28", "fr29", "fr30"]'
-      # default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8", "px4_9"]'
-      default: '["fr1", "fr2", "fr3"]'
-      # default: '["px4_1", "px4_2", "px4_3"]'
+      # default: '["fr1", "fr2", "fr3"]'
+      default: '["px4_1", "px4_2", "px4_3"]'
   - arg:
       name: 'env_scale_factor'
       default: '4.0'

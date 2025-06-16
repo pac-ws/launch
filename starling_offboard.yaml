@@ -20,6 +20,9 @@ launch:
   - arg:
       name: 'kP'
       default: '1.0'
+  - arg:
+      name: 'world_size'
+      default: '1024.0'
 
   - node:
       pkg: 'px4_homify'
@@ -61,6 +64,8 @@ launch:
                   value: '2.0'
                 - name: 'kP'
                   value: '$(var kP)'
+                - name: 'world_size'
+                  value: '$(var world_size)'
                 - name: 'fence_x_buf_l'
                   value: '5.0'
                 - name: 'fence_x_buf_r'
