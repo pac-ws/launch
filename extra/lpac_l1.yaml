@@ -14,7 +14,7 @@ launch:
         value: 'pt/models_256/model_k3_1024_256_state_dict.pt'
       remap:
       - from: 'robot_poses'
-        to: '/sim/all_robot_sim_poses'
+        to: '/sim/all_robot_positions'
       - from: 'sim_get_parameters'
         to: '/sim/sim_centralized/get_parameters'
       - from: 'get_world_map'

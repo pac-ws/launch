@@ -51,4 +51,4 @@ launch:
         value: '$(var namespaces_of_robots)'
       remap:
       - from: 'all_robot_poses'
-        to: '/sim/all_robot_sim_poses'
+        to: '/sim/all_robot_positions'

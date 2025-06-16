@@ -52,7 +52,7 @@ launch:
       args: "-d $(find-pkg-share rviz_pac)/resource/rviz.config.rviz"
       remap:
         - from: "poses"
-          to: "/sim/all_robot_sim_poses"
+          to: "/sim/all_robot_positions"
         - from: "update_world"
           to: "/sim/update_world"
         - from: "get_system_info"
