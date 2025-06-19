@@ -16,13 +16,7 @@ launch:
       default: '5669.47'
   - arg:
       name: 'env_scale_factor'
-      default: '4.0'
-  - arg:
-      name: 'kP'
-      default: '1.0'
-  - arg:
-      name: 'world_size'
-      default: '1024.0'
+      default: '32.0'
 
   - node:
       pkg: 'px4_homify'
@@ -63,9 +57,7 @@ launch:
                 - name: 'max_speed'
                   value: '2.0'
                 - name: 'kP'
-                  value: '$(var kP)'
-                - name: 'world_size'
-                  value: '$(var world_size)'
+                  value: '1.0'
                 - name: 'fence_x_buf_l'
                   value: '5.0'
                 - name: 'fence_x_buf_r'
@@ -74,4 +66,3 @@ launch:
                   value: '5.0'
                 - name: 'fence_y_buf_t'
                   value: '10.0'
-
