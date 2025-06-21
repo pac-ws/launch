@@ -39,7 +39,7 @@ launch:
       name: 'lpac_node'
       param:
       - name: 'params_file'
-        value: 'pt/models_256/coverage_control_params.toml'
+        value: 'pt/models_256/coverage_control_params_512.toml'
       - name: 'learning_params_file'
         value: 'pt/models_256/learning_params.toml'
       - name: 'model_state_dict'
