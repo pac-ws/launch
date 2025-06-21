@@ -16,7 +16,7 @@ launch:
       default: '5669.47'
   - arg:
       name: 'env_scale_factor'
-      default: '32.0'
+      default: '16.0'
 
   - node:
       pkg: 'px4_homify'
