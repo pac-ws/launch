@@ -1,8 +1,8 @@
 launch:
   - arg:
       name: 'env_dir'
-      #default: 'penn_envs' # Real-world
-      default: 'px4_envs' # Simulation 
+      default: 'penn_envs' # Real-world
+      # default: 'px4_envs' # Simulation 
   - arg:
       name: 'full_path'
       default: 'configs/$(var env_dir)'
@@ -11,21 +11,19 @@ launch:
       default: 'pt/models_256/coverage_control_params_512.toml'
   - arg:
       name: 'idf_file'
-      default: '$(var full_path)/1.env'
+      default: '$(var full_path)/3.env'
   - arg:
       name: 'namespaces_of_robots'
-      # default: '["px4_1", "px4_2", "px4_3", "px4_4", "px4_5", "px4_6", "px4_7", "px4_8", "px4_9", "px4_10"]'
-      #default: '["fr1", "fr2", "fr3", "fr4", "fr5", "fr6", "fr7", "fr8", "fr9", "fr10", "fr11", "fr12", "fr13", "fr14", "fr15", "fr16", "fr17", "fr18", "fr19", "fr20", "fr21", "fr22", "fr23", "fr24", "fr25", "fr26", "fr27", "fr28", "fr29", "fr30"]'
-      #default: '["fr1", "fr2", "fr3"]'
       default: '["px4_1", "px4_2", "px4_3"]'
-      #default: '["r0", "r3", "r5", "r6", "r7", "r9", "r11", "r12", "r13", "r15", "r17", "r18", "r19"]'
+      # default: '["fr1", "fr2", "fr3", "fr4"]'
+      # default: '["r0", "r3"]'
   - arg:
       name: 'env_scale_factor'
-      #default: '32.0' # Real-world scale factor
-      default: '4.0' # Simulation scale factor
+      # default: '32.0' # Real-world scale factor
+      default: '1.0' # Simulation scale factor
   - arg:
       name: 'vel_scale_factor'
-      #default: '0.25' # Real-world scale factor
+      # default: '0.25' # Real-world scale factor
       default: '1.0' # Simulation scale factor
   - arg:
       name: 'pose_timeout'
