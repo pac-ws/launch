@@ -54,7 +54,9 @@ launch:
         to: '/sim/get_world_map'
       - from: 'get_system_info'
         to: '/sim/get_system_info'
-
+  - node:
+      pkg: 'starling_cams'
+      exec: 'tracking_cam_sync'
   - group:
         - push-ros-namespace:
               namespace: "$(env ROS_NAMESPACE)"
