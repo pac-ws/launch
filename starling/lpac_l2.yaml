@@ -57,6 +57,11 @@ launch:
   - node:
       pkg: 'starling_cams'
       exec: 'tracking_cam_sync'
+      param:
+      - name: 'debug'
+        value: 'true'
+      - name: 'spam_rate'
+        value: '125'
   - group:
         - push-ros-namespace:
               namespace: "$(env ROS_NAMESPACE)"
