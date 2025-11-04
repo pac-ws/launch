@@ -62,7 +62,7 @@ launch:
       exec: 'tracking_cam_sync'
       param:
       - name: 'debug'
-        value: 'true'
+        value: true
       - name: 'spam_rate'
         value: '125'
   - group:
