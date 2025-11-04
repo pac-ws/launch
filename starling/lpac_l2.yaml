@@ -98,3 +98,5 @@ launch:
                   value: '5.0'
                 - name: 'fence_y_buf_t'
                   value: '10.0'
+                - name: 'debug'
+                  value: true
