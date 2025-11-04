@@ -55,6 +55,9 @@ launch:
       - from: 'get_system_info'
         to: '/sim/get_system_info'
   - node:
+      pkg: 'voxl_mpa_to_ros2'
+      exec: 'voxl_mpa_to_ros2_node'
+  - node:
       pkg: 'starling_cams'
       exec: 'tracking_cam_sync'
       param:
