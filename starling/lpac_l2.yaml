@@ -64,7 +64,7 @@ launch:
       - name: 'debug'
         value: true
       - name: 'spam_rate'
-        value: '125'
+        value: 125
   - group:
         - push-ros-namespace:
               namespace: "$(env ROS_NAMESPACE)"
