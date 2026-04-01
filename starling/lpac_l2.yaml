@@ -54,17 +54,17 @@ launch:
         to: '/sim/get_world_map'
       - from: 'get_system_info'
         to: '/sim/get_system_info'
-  - node:
-      pkg: 'voxl_mpa_to_ros2'
-      exec: 'voxl_mpa_to_ros2_node'
-  - node:
-      pkg: 'starling_cams'
-      exec: 'tracking_cam_sync'
-      param:
-      - name: 'debug'
-        value: true
-      - name: 'spam_rate'
-        value: 125
+        #- node:
+        #    pkg: 'voxl_mpa_to_ros2'
+        #    exec: 'voxl_mpa_to_ros2_node'
+        #- node:
+        #    pkg: 'starling_cams'
+        #    exec: 'tracking_cam_sync'
+        #    param:
+        #    - name: 'debug'
+        #      value: true
+        #    - name: 'spam_rate'
+        #      value: 125
   - group:
         - push-ros-namespace:
               namespace: "$(env ROS_NAMESPACE)"
@@ -99,4 +99,4 @@ launch:
                 - name: 'fence_y_buf_t'
                   value: '10.0'
                 - name: 'debug'
-                  value: true
+                  value: 'true'
